@@ -1,7 +1,9 @@
 const express=require('express')
+const bcrypt=require('bcrypt')
 const databaseDb=require("./config/dataBase")
 const app=express();
 const {User}=require('./model/user')
+const {ValidateSignUp}=require("./Utils/Validator")
 app.use(express.json())
 /*app.use('/about',(req,res)=>{
      res.send("Request has been send to me now")
@@ -98,18 +100,42 @@ app.use("/",(err,req,res,next)=>{
      }
 })
      */
+
 app.post("/signup",async(req,res)=>{
-     const dummyUser= new User(req.body);
-     console.log(req.body);
- try{
+     try{
+     const {firstName,lastName,emailId,password}=req.body
+     //validate the data
+     ValidateSignUp(req);
+     //Encrypt the password
+     const passwordHash=await bcrypt.hash(password,10);
+     console.log(passwordHash);
+     // req.body.password=passwordHash;
+     const dummyUser=User({firstName,lastName,emailId,password:passwordHash});
      await dummyUser.save();
      res.send("data added succesfully")
  }catch(err){
-     res.status(400).send("it is a bad request "+err.Massage);
+     res.status(400).send("it is a bad request "+err);
  }
     
 })
-
+app.post("/login",async(req,res)=>{
+     try{
+          const {emailId,password}=req.body;
+          const user=await User.findOne({emailId})
+          if((!user)){
+               throw new Error("INVALID CREDENTIALS")
+          }
+          const matchpassword=await bcrypt.compare(password,user.password);
+          if(!matchpassword){
+               throw new Error("INVALID CREDENTIALS")
+          }
+          else{
+               res.send("login successfull")
+          }
+     }catch(e){
+          res.status(400).send(" error in login "+e);
+     }
+})
 app.get("/users",async(req,res)=>{
      try{
           const userEmail=req.body.emailId;
@@ -152,13 +178,10 @@ app.delete("/user",async(req,res)=>{
      }
 })
 
-app.patch("/user",async(req,res)=>{
+app.put("/user",async(req,res)=>{
      const data=req.body;
 try {
-     // Find a user with age 30 and replace it with the new data
      const userReplace = await User.findOneAndReplace({emailId:"krish@gmail.aeiryt"}, data, { new: false });
-
-     // Check if a user was found and replaced
      if (!userReplace) {
          return res.status(404).send("User  not found");
      }
@@ -168,9 +191,34 @@ try {
      res.status(500).send("Something went wrong: " + err);
  }
 })
-app.patch("/user",(req,res)=>{
-
+app.patch("/user",async(req,res)=>{
+     const data=req.body;
+try{
+   const newUser= await User.findOneAndUpdate({age:30},data,{new:true,runValidators:true});
+    res.send(newUser);
+} catch(err){
+     res.status(404).send("something went wrong");
+}
 })
+app.patch("/user/:userId",async(req,res)=>{
+const userId=req.params?.userId;
+const data=req.body;
+try {
+  const ALLOWED_UPDATES=['gender','skill','data','password'];
+  const UPDATE_ALLOWED=Object.keys(data).every((k)=>
+     ALLOWED_UPDATES.includes(k))
+  if(!UPDATE_ALLOWED){
+     throw new Error("Cannnot update this")
+  }
+  const user=await  User.findByIdAndUpdate({_id:userId},data,{returnDocument:"after",runValidators:true})
+  console.log(user);
+  res.send("Data updated succesfully")
+  }
+   catch (error) {
+     res.status(404).send("update failed"+err)
+}
+})
+
 databaseDb().
 then(()=>{
 console.log("App is connected to db")
