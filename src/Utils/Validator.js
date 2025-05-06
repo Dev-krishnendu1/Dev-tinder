@@ -9,8 +9,18 @@ const ValidateSignUp=(req)=>{
      }
      if(!validator.isStrongPassword(password)){
           throw new Error("Enter a strong password");}
-     
      }
+const ValidateProfileEdit=(req)=>{
+     const canEditField=[
+          'firstName',
+          'lastName',
+          'age',
+          'photoUrl'
+          ,'skills']
+    const isEditPossible=Object.keys(req.body).every((field)=>canEditField.includes(field));
+    return isEditPossible;
+}
 module.exports={
-     ValidateSignUp
+     ValidateSignUp,
+     ValidateProfileEdit
 }
