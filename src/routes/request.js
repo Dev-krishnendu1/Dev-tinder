@@ -31,7 +31,6 @@ const alreadyExistRequest=await requestConnection.findOne(
           if (!toUser) {
             return res.status(404).json({ message: "User not found!" });
           }
-          
           const Connection=new requestConnection({
                fromUserId,
                toUserId,
@@ -41,11 +40,51 @@ const alreadyExistRequest=await requestConnection.findOne(
          
           const requestData=await Connection.save();
           res.json({
-               message:`${req.user.firstName} is ${status} ${toUser.firstName}`,
+               message:`${req.user.firstName} is ${status} in ${toUser.firstName}`,
                requestData,
           })
      }catch(err){
           res.status(400).send("Error"+err.message)
      }
 })
+requestRouter.post("/request/review/:status/:requestId", UserAuth, async (req, res) => {
+  try {
+    const loggedInUserId = req.user;
+//     const { status, requestId } = req.params;
+        const requestId = req.params.requestId;
+        const status = req.params.status;
+
+    const allowedStatus = ["accepted", "rejected"];
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ message: "Status is not valid" });
+    }
+
+    const request = await requestConnection.findOne({
+      toUserId: loggedInUserId._id,
+      _id: requestId,
+      status: "interested"
+    });
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request is not valid!"
+      });
+    }
+
+    request.status = status;
+    const data = await request.save();
+
+    return res.json({
+      message: `Request has been ${status}.`,
+      data: data
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Something went wrong!",
+      error: error.message
+    });
+  }
+});
+
 module.exports=requestRouter
