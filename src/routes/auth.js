@@ -37,9 +37,8 @@ authRouter.post("/login",async(req,res)=>{
           const matchpassword=await user.ValidatePassword(password);
           if(matchpassword){
                const token=await user.getJWTtoken();
-               //  console.log(token);
                res.cookie("token",token,{expires:new Date(Date.now()+8*360000)});
-               res.send("login successfull")
+               res.send(user)
           }
           else{
                throw new Error("INVALID CREDENTIALS");

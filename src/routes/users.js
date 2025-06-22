@@ -2,7 +2,6 @@ const express=require('express');
 const { UserAuth } = require('../Middleware/auth');
 const requestConnection = require('../model/ConnectionRequest');
 const {User}=require("../model/user")
-const e = require('express');
 const userRouter=express.Router();
 
 userRouter.get("/user/request/received",UserAuth,async(req,res)=>{
