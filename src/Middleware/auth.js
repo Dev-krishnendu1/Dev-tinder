@@ -4,7 +4,7 @@ const UserAuth=async(req,res,next)=>{
    try{
      const {token}=req.cookies;
      if(!token){
-          throw new Error("Token is not found")
+        return res.status(401).send("You are not logged in")
      }
      const decodedToken=jwt.verify(token,"Krish@1234");
      const {_id}=decodedToken;
