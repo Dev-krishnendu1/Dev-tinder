@@ -21,9 +21,9 @@ profileRouter.patch("/profile/edit",UserAuth,async(req,res)=>{
        const loggedInUser=req.user;
        Object.keys(req.body).forEach((key)=>loggedInUser[key]=req.body[key])
        console.log(loggedInUser);
-       res.send(`Ms.${loggedInUser.lastName} your profile updated succesfully.`)
+       res.send(`Mr .${loggedInUser.lastName} your profile updated succesfully.`)
      }catch(err){
-          res.status(400).send("Cann't be edited"+err)
+          res.status(400).send("Cann't be edited:"+err)
      }
 })
 profileRouter.patch("/profile/password",UserAuth,async(req,res)=>{

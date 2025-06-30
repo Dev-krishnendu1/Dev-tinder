@@ -50,7 +50,7 @@ const userSchema = new Schema(
           {
                type: Number,
                min: 18,
-               maxLength: 85
+               max: 120,
           },
           skills: {
                type:[],
@@ -65,11 +65,11 @@ const userSchema = new Schema(
           },
           data: {
                type: String,
-               default: "https://www.pexels.com/search/men/",
+               default: "https://img.icons8.com/?size=100&id=108652&format=png&color=000000",
                validate(value){
-                  if(!validator.isURL(value)){
+               if(!validator.isURL(value)){
                     throw new Error("enter a valid url")
-                  }  
+               }  
                }
           },
           gender: {

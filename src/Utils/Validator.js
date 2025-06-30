@@ -15,7 +15,8 @@ const ValidateProfileEdit=(req)=>{
           'firstName',
           'lastName',
           'age',
-          'photoUrl'
+          'data',
+          'gender'
           ,'skills']
     const isEditPossible=Object.keys(req.body).every((field)=>canEditField.includes(field));
     return isEditPossible;
